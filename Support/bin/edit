@@ -1,15 +1,30 @@
 #!/bin/sh
 
 ##
-# edit: backend script of the MailMate MacVim bundle, used to invoke vim
+# edit: backend script of the MailMate editor bundle, used to invoke an editor
+#
+# To test locally, copy it to the MailMate bundle directory:
+# cp Support/bin/edit ~/Library/Application\ Support/MailMate/Managed/Bundles/MacVim.mmbundle/Support/bin/edit
 # 
 # Original author: O'Shaughnessy Evans <shaug+mailmate@wumpus.org>
+# Modified by: Narath Carlile <narathc+mailmate@gmail.com> to support VimR
 ##
 
-PATH=$HOME/bin:~/Applications/MacVim.app/Contents/MacOS:/Applications/MacVim.app/Contents/MacOS:/usr/local/bin:$PATH
+# Add app directories to PATH
+PATH=$HOME/bin:~/Applications/MacVim.app/Contents/MacOS:/Applications/MacVim.app/Contents/MacOS:/Applications/VimR.app/Contents/MacOS:/usr/local/bin:$PATH
 
-hash mvim 2>/dev/null && VISUAL=mvim || VISUAL=Vim
+# Check if MacVim is present
+if hash mvim 2>/dev/null; then
+  VISUAL=mvim
+# Check if VimR command line is present
+# Note: you have to enable this as an option in VimR
+elif hash vimr 2>/dev/null; then
+  VISUAL=vimr
+# Default to Vim if neither MacVim nor VimR is found
+else
+  VISUAL=vim
+fi
 
-open -g -a Marked "$MM_EDIT_FILEPATH" 2>/dev/null
+open -g -a 'Marked 2' "$MM_EDIT_FILEPATH" 2>/dev/null
 $VISUAL -gf +$MM_LINE_NUMBER -c "set filetype=markdown" "$MM_EDIT_FILEPATH"
-osascript -e 'tell app "MailMate" to activate'
+osascript -e 'tell application "MailMate" to activate'
